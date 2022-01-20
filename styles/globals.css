@@ -1,16 +1,24 @@
-html,
+@font-face {
+  font-family: "Mondwest Bold";
+  src: url("/fonts/PPMondwest-Bold.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Mondwest Regular";
+  src: url("/fonts/PPMondwest-Regular.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "NeueBit Bold";
+  src: url("/fonts/PPNeueBit-Bold.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "NeueBit Regular";
+  src: url("/fonts/PPNeueBit-Regular.woff2") format("woff2");
+}
+
 body {
-  padding: 0;
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-* {
-  box-sizing: border-box;
+  /* for the marquee */
+  overflow-x: hidden;
 }
