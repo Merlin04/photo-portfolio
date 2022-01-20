@@ -21,4 +21,22 @@
 body {
   /* for the marquee */
   overflow-x: hidden;
+  /* --poof-x: 0;
+  --poof-y: 0;
+  --poof-calculated-radius: 100vw; */
+}
+/* 
+:root {
+  --poof-x: 0;
+  --poof-y: 0;
+  --poof-calculated-radius: 100vw;
+} */
+
+@keyframes poof {
+  from {
+    clip-path: circle(0 at var(--poof-x) var(--poof-y))
+  }
+  to {
+    clip-path: circle(var(--poof-calculated-radius) at var(--poof-x) var(--poof-y))
+  }
 }

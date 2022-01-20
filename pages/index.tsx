@@ -3,13 +3,14 @@ import type { GetStaticProps } from 'next';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import { getAssignments, GetAssignmentsRes } from '../src/berowra';
-import { Card, CardHeader, CardMedia } from '@mui/material';
+import { BerowraAssignment, getAssignments, GetAssignmentsRes } from '../src/berowra';
+import { Button, Card, CardHeader, Chip, DialogContent, DialogTitle, Link, Modal, Paper } from '@mui/material';
 import Image from 'next/image';
 import theme from '../src/theme';
 import Marquee from "../src/MarqueePolyfill";
-import Link from "../src/Link";
+import NextLink from "../src/Link";
 import Masonry from "@mui/lab/Masonry";
+import Head from 'next/head';
 
 type NPairArray = [number, number][]
 
@@ -20,6 +21,8 @@ type IndexProps = {
 };
 
 let hasSetMutationObserver = false;
+
+const COOL_TIMING_FUNCTION = "cubic-bezier(.17,.84,.44,1)";
 
 export default function Index({ data, randomPos, randomShadow }: IndexProps) {
   const [masonryDone, setMasonryDone] = React.useState(false);
@@ -36,7 +39,9 @@ export default function Index({ data, randomPos, randomShadow }: IndexProps) {
     o.observe(masonryRef.current, {
       attributes: true, childList: true, subtree: true
     });
-  }, [masonryRef.current]);
+  }, []);
+
+  const [openItem, setOpenItem] = React.useState<BerowraAssignment | undefined>(undefined);
 
   return (
     <>
@@ -73,12 +78,19 @@ export default function Index({ data, randomPos, randomShadow }: IndexProps) {
         gap: theme.spacing(4)
       }}> */}
       <Container maxWidth="lg" sx={{
-        marginY: theme.spacing(4)
+        marginY: theme.spacing(6)
       }}>
       <Masonry columns={3} spacing={4} ref={masonryRef}>
         {data.items.map((item, index) => (
-          <Link href={`/a/${encodeURIComponent(item.title)}`} sx={{
+          <Link key={index} href="#" /*href={`/a/${encodeURIComponent(item.title)}`}*/ sx={{
             visibility: masonryDone ? "inherit" : "hidden"
+          }} onClick={e => {
+            e.preventDefault();
+            document.documentElement.style.setProperty("--poof-x", e.clientX.toString() + "px");
+            document.documentElement.style.setProperty("--poof-y", e.clientY.toString() + "px");
+            // Sadly CSS doesn't support square root
+            document.documentElement.style.setProperty("--poof-calculated-radius", Math.sqrt(document.body.clientWidth ** 2 + document.body.clientHeight ** 2).toString() + "px");
+            setOpenItem(item);
           }}>
             <Card variant="outlined" sx={{
               // TODO: maybe keep this? bgcolor: item.content.Background.value ?? undefined,
@@ -100,7 +112,7 @@ export default function Index({ data, randomPos, randomShadow }: IndexProps) {
                 boxShadow: `${randomShadow[index][0] + 20}px ${randomShadow[index][1] + 20}px ${item.content.Background.value ?? "black"}`
               },
               transform: masonryDone ? "inherit" : "scale(0)",
-              transition: "all 1s cubic-bezier(.17,.84,.44,1)"
+              transition: `all 1s ${COOL_TIMING_FUNCTION}`
             }}>
               <CardHeader title={item.title} subheader={item.content.Date.value} titleTypographyProps={{
                 variant: "h4"
@@ -120,6 +132,44 @@ export default function Index({ data, randomPos, randomShadow }: IndexProps) {
           </Link>
         ))}
       </Masonry></Container>
+
+      {openItem && (
+        <Head>
+          <style>
+            {`body { overflow: hidden; }`}
+          </style>
+        </Head>
+      )}
+
+      <Modal open={Boolean(openItem)} sx={{
+        animationName: "poof",
+        animationDuration: "1s",
+        animationTimingFunction: COOL_TIMING_FUNCTION
+      }}>
+        <Paper variant="outlined" sx={{
+          //padding: theme.spacing(4),
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          borderWidth: "0.5rem"
+        }}>
+          <Typography variant="h3" sx={{
+            padding: "1rem",
+            bgcolor: openItem?.content.Background.value ?? "inherit"
+          }}>{openItem?.title}</Typography>
+          <Box sx={{
+            padding: "1rem"
+          }}>
+            <Chip label={openItem?.content.Date.value} variant="outlined" sx={{
+              fontSize: 20,
+              borderRadius: 0
+            }} />
+          </Box>
+          <Button onClick={() => setOpenItem(undefined)}>Close</Button>
+        </Paper>
+      </Modal>
+      
     </>
   );
 };
