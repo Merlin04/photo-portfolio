@@ -1,9 +1,9 @@
 import * as React from 'react';
-import type { GetStaticProps } from 'next';
+import type { GetStaticPaths, GetStaticProps } from 'next';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import { BerowraAssignment, getAssignments, GetAssignmentsRes } from '../src/berowra';
+import { BerowraAssignment, getAssignments, getAssignmentsCollection, GetAssignmentsRes } from '../src/berowra';
 import { Button, Card, CardHeader, Chip, DialogContent, DialogTitle, Link, Modal, Paper } from '@mui/material';
 import Image from 'next/image';
 import theme from '../src/theme';
@@ -11,6 +11,7 @@ import Marquee from "../src/MarqueePolyfill";
 import NextLink from "../src/Link";
 import Masonry from "@mui/lab/Masonry";
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 
 type NPairArray = [number, number][]
 
@@ -25,6 +26,7 @@ let hasSetMutationObserver = false;
 const COOL_TIMING_FUNCTION = "cubic-bezier(.17,.84,.44,1)";
 
 export default function Index({ data, randomPos, randomShadow }: IndexProps) {
+  const router = useRouter();
   const [masonryDone, setMasonryDone] = React.useState(false);
   const masonryRef = React.useRef<HTMLDivElement>(null);
 
@@ -41,7 +43,33 @@ export default function Index({ data, randomPos, randomShadow }: IndexProps) {
     });
   }, []);
 
-  const [openItem, setOpenItem] = React.useState<BerowraAssignment | undefined>(undefined);
+  const refetchOpenItem = () => router.query.item?.[0] ? data.items.find(i => i.title === router.query.item![0]) : undefined;
+
+  const [openItem, setOpenItem] = React.useState<BerowraAssignment | undefined>(refetchOpenItem);
+
+  React.useEffect(() => {
+    setOpenItem(refetchOpenItem());
+  }, [router.query.item]);
+
+  const [exiting, setExiting] = React.useState<boolean>(false);
+  const modalRef = React.useRef<HTMLDivElement>(null);
+
+  // React.useEffect(() => {
+  //   history.pushState({}, "", openItem ? "/" + encodeURIComponent(openItem.title) : "/");
+  // }, [openItem]);
+
+  React.useEffect(() => {
+    if(exiting) {
+      const handler = () => {
+        // setOpenItem(undefined);
+        router.push("/", undefined, { shallow: true });
+        setExiting(false);
+        modalRef.current?.removeEventListener("animationend", handler);
+      }
+
+      modalRef.current?.addEventListener("animationend", handler);
+    }
+  }, [exiting]);
 
   return (
     <>
@@ -50,7 +78,7 @@ export default function Index({ data, randomPos, randomShadow }: IndexProps) {
         top: 0,
         bgcolor: "primary.main",
         height: "36px",
-        zIndex: 9999
+        zIndex: 999
       }}>
         <Marquee>
           <Typography sx={{
@@ -82,7 +110,7 @@ export default function Index({ data, randomPos, randomShadow }: IndexProps) {
       }}>
       <Masonry columns={3} spacing={4} ref={masonryRef}>
         {data.items.map((item, index) => (
-          <Link key={index} href="#" /*href={`/a/${encodeURIComponent(item.title)}`}*/ sx={{
+          <Link key={index} href={`/${encodeURIComponent(item.title)}`} sx={{
             visibility: masonryDone ? "inherit" : "hidden"
           }} onClick={e => {
             e.preventDefault();
@@ -90,7 +118,8 @@ export default function Index({ data, randomPos, randomShadow }: IndexProps) {
             document.documentElement.style.setProperty("--poof-y", e.clientY.toString() + "px");
             // Sadly CSS doesn't support square root
             document.documentElement.style.setProperty("--poof-calculated-radius", Math.sqrt(document.body.clientWidth ** 2 + document.body.clientHeight ** 2).toString() + "px");
-            setOpenItem(item);
+            router.push(`/${encodeURIComponent(item.title)}`, undefined, { shallow: true });
+            //setOpenItem(item);
           }}>
             <Card variant="outlined" sx={{
               // TODO: maybe keep this? bgcolor: item.content.Background.value ?? undefined,
@@ -141,10 +170,14 @@ export default function Index({ data, randomPos, randomShadow }: IndexProps) {
         </Head>
       )}
 
-      <Modal open={Boolean(openItem)} sx={{
-        animationName: "poof",
-        animationDuration: "1s",
+      <Modal ref={modalRef} open={Boolean(openItem)} sx={{
+        animationName: exiting ? "unpoof" : "poof",
+        animationDuration: "0.5s",
         animationTimingFunction: COOL_TIMING_FUNCTION
+      }} BackdropProps={{
+        sx: {
+          bgcolor: "white"
+        }
       }}>
         <Paper variant="outlined" sx={{
           //padding: theme.spacing(4),
@@ -166,7 +199,10 @@ export default function Index({ data, randomPos, randomShadow }: IndexProps) {
               borderRadius: 0
             }} />
           </Box>
-          <Button onClick={() => setOpenItem(undefined)}>Close</Button>
+          <Button onClick={() => {
+            setExiting(true);
+            // TODO: move route change back here?
+          }}>Close</Button>
         </Paper>
       </Modal>
       
@@ -183,5 +219,15 @@ export const getStaticProps: GetStaticProps<IndexProps> = async (ctx) => {
       randomShadow: data.items.map(() => [Math.random(), Math.random()].map(r => r * 10 + 5)) as NPairArray
     },
     revalidate: 10
+  }
+}
+
+export const getStaticPaths: GetStaticPaths = async (ctx) => {
+  return {
+    paths: [
+      ...(await getAssignmentsCollection()).items.map(a => ({ params: { item: [a.title] } })),
+      { params: { item: [] } }
+    ],
+    fallback: false
   }
 }

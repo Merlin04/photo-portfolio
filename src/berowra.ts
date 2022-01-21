@@ -75,6 +75,12 @@ function transformContent<T extends BerowraContent<any>>(content: T): TransformC
 type Unpromisify<T extends Promise<any>> = T extends Promise<infer A> ? A : never;
 export type GetAssignmentsRes = Unpromisify<ReturnType<typeof getAssignments>>;
 
+export async function getAssignmentsCollection() {
+    const res = await fetch(process.env.NEXT_PUBLIC_BEROWRA_INST + "/api/collection/" + process.env.BEROWRA_COLLECTION_ID);
+    const c = (await res.json()) as BerowraCollection;
+    return c;
+}
+
 export async function getAssignments() {
     const res = await fetch(process.env.NEXT_PUBLIC_BEROWRA_INST + "/api/collection/" + process.env.BEROWRA_COLLECTION_ID + "?content");
     const c = (await res.json()) as BerowraCollectionItems<RawBerowraAssignment>;

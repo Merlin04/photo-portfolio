@@ -25,12 +25,13 @@ body {
   --poof-y: 0;
   --poof-calculated-radius: 100vw; */
 }
-/* 
+
 :root {
-  --poof-x: 0;
-  --poof-y: 0;
+  --poof-x: 50vw;
+  --poof-y: 50vh;
+  /* TODO: update when close button clicked */
   --poof-calculated-radius: 100vw;
-} */
+}
 
 @keyframes poof {
   from {
@@ -38,5 +39,14 @@ body {
   }
   to {
     clip-path: circle(var(--poof-calculated-radius) at var(--poof-x) var(--poof-y))
+  }
+}
+
+@keyframes unpoof {
+  from {
+    clip-path: circle(var(--poof-calculated-radius) at var(--poof-x) var(--poof-y))
+  }
+  to {
+    clip-path: circle(0 at var(--poof-x) var(--poof-y))
   }
 }
