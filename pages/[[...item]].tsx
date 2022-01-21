@@ -4,13 +4,15 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { BerowraAssignment, getAssignments, getAssignmentsCollection, GetAssignmentsRes } from '../src/berowra';
-import { Button, Card, CardHeader, Chip, DialogContent, DialogTitle, Link, Modal, Paper } from '@mui/material';
+import { Button, Card, CardHeader, Chip, DialogContent, DialogTitle, Link, Modal, Paper, Portal } from '@mui/material';
 import Image from 'next/image';
 import theme from '../src/theme';
 import Marquee from "../src/MarqueePolyfill";
 import Masonry from "@mui/lab/Masonry";
 import Head from 'next/head';
 import { useRouter } from 'next/router';
+import MarkdownRenderer from '../src/MarkdownRenderer';
+import ImageGallery from '../src/ImageGallery';
 
 type NPairArray = [number, number][]
 
@@ -112,7 +114,11 @@ export default function Index({ data, randomPos, randomShadow }: IndexProps) {
       <Container maxWidth="lg" sx={{
         marginY: theme.spacing(6)
       }}>
-        <Masonry columns={3} spacing={4} ref={masonryRef}>
+        <Masonry
+          columns={{ sm: 2, md: 3 }}
+          spacing={4}
+          ref={masonryRef}
+        >
           {data.items.map((item, index) => (
             <Link key={index} href={`/${encodeURIComponent(item.title)}`} sx={{
               visibility: masonryDone ? "inherit" : "hidden"
@@ -167,13 +173,13 @@ export default function Index({ data, randomPos, randomShadow }: IndexProps) {
         </Masonry>
       </Container>
 
-      {openItem && (
+      {/* {openItem && (
         <Head>
           <style>
             {`body { overflow: hidden; }`}
           </style>
         </Head>
-      )}
+      )} */}
 
       {/* <Box ref={modalRootRef}> */}
         <Modal
@@ -200,25 +206,59 @@ export default function Index({ data, randomPos, randomShadow }: IndexProps) {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            borderWidth: "0.5rem"
+            width: "calc(100% - 12rem)",
+            maxWidth: "850px",
+            height: "calc(100vh - 6rem)",
+            minHeight: "min(100vh, 600px)",
+            borderWidth: "0.5rem",
+            display: "flex",
+            flexDirection: "column"
           }}>
+            <Portal container={modalRef.current}>
+              <Button disableRipple sx={{
+                position: "fixed",
+                right: "1rem",
+                top: "1rem",
+                zIndex: 99999,
+                fontSize: "4rem",
+                fontFamily: "NeueBit Bold",
+                paddingTop: 0,
+                paddingBottom: "0.5rem",
+                lineHeight: 1,
+                "&:focus": {
+                  bgcolor: "#e0f4f2",
+                }
+              }} onClick={() => {
+                setPoofCalculatedRadius();
+                setExiting(true);
+                // TODO: move route change back here?
+              }}>
+                x
+              </Button>
+            </Portal>
             <Typography variant="h3" sx={{
               padding: "1rem",
               bgcolor: openItem?.content.Background.value ?? "inherit"
             }}>{openItem?.title}</Typography>
             <Box sx={{
-              padding: "1rem"
+              padding: "1rem",
+              flex: 1,
+              display: "flex",
+              flexDirection: "column"
             }}>
               <Chip label={openItem?.content.Date.value} variant="outlined" sx={{
                 fontSize: 20,
-                borderRadius: 0
+                borderRadius: 0,
+                width: "max-content"
               }} />
+              <ImageGallery
+                images={openItem?.content.Images.value.map(f => process.env.NEXT_PUBLIC_BEROWRA_INST + "/file/" + f) ?? []}
+                sx={{
+                  flex: 1
+                }}
+              />
+              <MarkdownRenderer text={openItem?.content.Info.value ?? ""} />
             </Box>
-            <Button onClick={() => {
-              setPoofCalculatedRadius();
-              setExiting(true);
-              // TODO: move route change back here?
-            }}>Close</Button>
           </Paper>
         </Modal>
       {/* </Box> */}
