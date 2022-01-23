@@ -86,7 +86,7 @@ export async function getAssignments() {
     const c = (await res.json()) as BerowraCollectionItems<RawBerowraAssignment>;
     return {
         ...c,
-        items: c.items.map(i => transformContent(i))
+        items: c.items.map(i => transformContent(i)).sort((a, b) => new Date(b.content.Date.value).getTime() - new Date(a.content.Date.value).getTime())
     };
 }
 
