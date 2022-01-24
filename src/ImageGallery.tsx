@@ -4,8 +4,7 @@ import SwipeableViews from "react-swipeable-views";
 import { autoPlay } from "react-swipeable-views-utils";
 import theme from "./theme";
 import Image from "next/image";
-import { KeyboardArrowLeft, KeyboardArrowRight } from "@mui/icons-material";
-import { Theme } from "@mui/system";
+import { SxProps, Theme } from "@mui/system";
 
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
