@@ -42,36 +42,55 @@ export default function ImageGallery({ images, sx, ...boxProps }: {
                                 display: "block",
                                 overflow: "hidden",
                                 width: "100%",
-                                position: "relative"
+                                position: "relative",
+                                "& img": {
+                                    userDrag: "none"
+                                }
                             }}>
-                                <Image layout="fill" objectFit="contain" src={step} />
+                                <Image layout="fill" objectFit="contain" src={step} draggable={false} />
                             </Box>
                         ) : null}
                     </div>
                 ))}
             </AutoPlaySwipeableViews>
             <MobileStepper
+                sx={{
+                    //bgcolor: theme.palette.primary.light + " !important",
+                    bgcolor: "rgba(0,0,0,0.05) !important",
+                    "& .custom-dotactive": {
+                        bgcolor: theme.palette.info.main
+                    }
+                }}
+                classes={{
+                    dotActive: "custom-dotactive"
+                }}
                 steps={images.length}
                 position="static"
                 activeStep={activeStep}
                 nextButton={
                     <Button
-                        size="small"
                         onClick={() => setActiveStep(s => s + 1)}
                         disabled={activeStep === images.length - 1}
+                        color="info"
+                        sx={{
+                            fontSize: "1.25rem",
+                            lineHeight: "initial"
+                        }}
                     >
-                        Next
-                        <KeyboardArrowRight />
+                        Next →
                     </Button>
                 }
                 backButton={
                     <Button
-                        size="small"
                         onClick={() => setActiveStep(s => s - 1)}
                         disabled={activeStep === 0}
+                        color="info"
+                        sx={{
+                            fontSize: "1.25rem",
+                            lineHeight: "initial"
+                        }}
                     >
-                        <KeyboardArrowLeft />
-                        Back
+                        ← Back
                     </Button>
                 }
             />
