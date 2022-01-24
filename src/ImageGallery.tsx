@@ -5,13 +5,25 @@ import { autoPlay } from "react-swipeable-views-utils";
 import theme from "./theme";
 import Image from "next/image";
 import { KeyboardArrowLeft, KeyboardArrowRight } from "@mui/icons-material";
+import { Theme } from "@mui/system";
 
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
-export default function ImageGallery({ images, sx, ...boxProps }: {
-    images: string[]
+export default function ImageGallery({ images, color, sx, ...boxProps }: {
+    images: string[],
+    color?: string
 } & BoxProps) {
     const [activeStep, setActiveStep] = useState(0);
+
+    const buttonStyles: SxProps<Theme> = {
+        fontSize: "1.25rem",
+        lineHeight: "initial",
+        color: color ?? undefined,
+        fontFamily: '"NeueBit Bold", sans-serif',
+        "&:hover": {
+            backgroundColor: color ? color + "0a" : undefined /* 20/255 in hex (about 0.04, the opacity of the MUI-styled background) */
+        }
+    };
     
     return (
         <Box {...boxProps} sx={{
@@ -58,7 +70,7 @@ export default function ImageGallery({ images, sx, ...boxProps }: {
                     //bgcolor: theme.palette.primary.light + " !important",
                     bgcolor: "rgba(0,0,0,0.05) !important",
                     "& .custom-dotactive": {
-                        bgcolor: theme.palette.info.main
+                        bgcolor: color ?? theme.palette.info.main
                     }
                 }}
                 classes={{
@@ -72,10 +84,7 @@ export default function ImageGallery({ images, sx, ...boxProps }: {
                         onClick={() => setActiveStep(s => s + 1)}
                         disabled={activeStep === images.length - 1}
                         color="info"
-                        sx={{
-                            fontSize: "1.25rem",
-                            lineHeight: "initial"
-                        }}
+                        sx={buttonStyles}
                     >
                         Next →
                     </Button>
@@ -85,10 +94,7 @@ export default function ImageGallery({ images, sx, ...boxProps }: {
                         onClick={() => setActiveStep(s => s - 1)}
                         disabled={activeStep === 0}
                         color="info"
-                        sx={{
-                            fontSize: "1.25rem",
-                            lineHeight: "initial"
-                        }}
+                        sx={buttonStyles}
                     >
                         ← Back
                     </Button>

@@ -251,6 +251,7 @@ export default function Index({ data, randomPos, randomShadow }: IndexProps) {
                 width: "max-content"
               }} />
               <ImageGallery
+                color={openItem?.content.Background.value}
                 images={openItem?.content.Images.value.map(f => process.env.NEXT_PUBLIC_BEROWRA_INST + "/file/" + f) ?? []}
                 sx={{
                   flex: 1
