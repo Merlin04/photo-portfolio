@@ -4,12 +4,11 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { BerowraAssignment, getAssignments, getAssignmentsCollection, GetAssignmentsRes } from '../src/berowra';
-import { Button, Card, CardHeader, Chip, DialogContent, DialogTitle, Link, Modal, Paper, Portal } from '@mui/material';
+import { Button, Card, CardHeader, Chip, Link, Modal, Paper, Portal } from '@mui/material';
 import Image from 'next/image';
 import theme from '../src/theme';
 import Marquee from "../src/MarqueePolyfill";
 import Masonry from "@mui/lab/Masonry";
-import Head from 'next/head';
 import { useRouter } from 'next/router';
 import MarkdownRenderer from '../src/MarkdownRenderer';
 import ImageGallery from '../src/ImageGallery';
@@ -284,6 +283,6 @@ export const getStaticPaths: GetStaticPaths = async (ctx) => {
       ...(await getAssignmentsCollection()).items.map(a => ({ params: { item: [a.title] } })),
       { params: { item: [] } }
     ],
-    fallback: false
+    fallback: "blocking"
   }
 }
