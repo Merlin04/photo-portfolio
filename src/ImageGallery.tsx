@@ -58,7 +58,7 @@ export default function ImageGallery({ images, color, sx, ...boxProps }: {
                                     userDrag: "none"
                                 }
                             }}>
-                                <Image layout="fill" objectFit="contain" src={step} draggable={false} />
+                                <Image priority layout="fill" objectFit="contain" src={step} draggable={false} />
                             </Box>
                         ) : null}
                     </div>

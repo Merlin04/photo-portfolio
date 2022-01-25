@@ -164,6 +164,8 @@ export default function Index({ data, randomPos, randomShadow }: IndexProps) {
                     alt="Assignment picture"
                     layout="fill"
                     objectFit="cover"
+                    // priority
+                    lazyBoundary="1000px"
                   />
                 </Box>
               </Card>
